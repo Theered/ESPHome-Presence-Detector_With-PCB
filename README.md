@@ -69,3 +69,7 @@ BOM:
 
 9. Custom PCB (gerber files are linked in the project)
     <img width="507" height="772" alt="image" src="https://github.com/user-attachments/assets/1ea670e9-7abb-478a-92b8-1a5198646aa3" />
+
+schematic:
+<img width="197" height="260" alt="image" src="https://github.com/user-attachments/assets/302e2219-ea35-4b9e-afd3-996f679b00e3" />
+
