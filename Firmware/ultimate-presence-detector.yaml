@@ -1,0 +1,113 @@
+# Board: ESP32-C3 Super Mini (Generic)
+# Definition: definitions/boards/esp32-c3-supermini/manifest.yaml
+
+substitutions:
+  name: ultimate-presence-detector
+  friendly_name: "Ultimate Presence Detector"
+  
+  # Pin Assignments
+  pir_pin: GPIO3
+  ws2812b_pin: GPIO4
+  
+  # I2C Pins (for TSL2591)
+  i2c_sda: GPIO8
+  i2c_scl: GPIO9
+  
+  # UART Pins (for LD2410C)
+  ld2410_tx: GPIO21
+  ld2410_rx: GPIO20
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  variant: esp32c3
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: "F7ViIO5/M8LV/Ve67E9GfHh85xXAf8uFSmWfIdFQUXo="
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Ultimate Presence Fallback"
+    password: "ultimatepresence"
+
+captive_portal:
+
+# Component Buses
+i2c:
+  sda: ${i2c_sda}
+  scl: ${i2c_scl}
+  scan: true
+
+uart:
+  id: uart_bus
+  tx_pin: ${ld2410_tx}
+  rx_pin: ${ld2410_rx}
+  baud_rate: 256000
+
+ld2410:
+
+binary_sensor:
+  # AM312 PIR
+  - platform: gpio
+    pin: ${pir_pin}
+    name: "PIR Motion"
+    device_class: motion
+
+  # LD2410
+  - platform: ld2410
+    has_target:
+      name: "LD2410 Presence"
+    has_moving_target:
+      name: "LD2410 Moving Target"
+    has_still_target:
+      name: "LD2410 Still Target"
+
+sensor:
+  # TSL2591 Light Sensor
+  - platform: tsl2591
+    name: "Illuminance"
+    id: tsl2591_illuminance
+    address: 0x29
+    update_interval: 60s
+    full_spectrum:
+      name: "Full Spectrum"
+    infrared:
+      name: "Infrared"
+    visible:
+      name: "Visible Light"
+
+  # LD2410
+  - platform: ld2410
+    moving_distance:
+      name: "Moving Distance"
+    still_distance:
+      name: "Still Distance"
+    moving_energy:
+      name: "Moving Energy"
+    still_energy:
+      name: "Still Energy"
+    detection_distance:
+      name: "Detection Distance"
+
+# WS2812B Status LED
+light:
+  - platform: esp32_rmt_led_strip
+    chipset: WS2812
+    rgb_order: GRB
+    pin: ${ws2812b_pin}
+    num_leds: 1
+    name: "Status LED"
+    id: status_led
